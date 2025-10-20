@@ -16,7 +16,7 @@ A comprehensive, interactive Arch Linux system setup automation tool with suppor
 
 ```
 .
-├── dev_run.sh                 # Main orchestrator script
+├── setup_run.sh                 # Main orchestrator script
 ├── arch-pkg-setup.sh          # Pacman/AUR package installer
 ├── dotfiles-stow-setup.sh     # Dotfiles configuration (user-provided)
 ├── flatpak-pkg-setup.sh       # Flatpak application installer
@@ -55,8 +55,8 @@ A comprehensive, interactive Arch Linux system setup automation tool with suppor
 
 4. **Run the setup**
    ```bash
-   chmod +x dev_run.sh
-   ./dev_run.sh
+   chmod +x setup_run.sh
+   ./setup_run.sh
    ```
 
 ## Configuration Files
@@ -226,8 +226,8 @@ makepkg -si
 ### Permission Errors
 Ensure you're NOT running as root:
 ```bash
-./dev_run.sh  # Correct
-sudo ./dev_run.sh  # Wrong - will error
+./setup_run.sh  # Correct
+sudo ./setup_run.sh  # Wrong - will error
 ```
 
 Scripts use sudo only when necessary.
