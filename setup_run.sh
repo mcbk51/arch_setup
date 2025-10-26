@@ -88,13 +88,13 @@ main() {
     run_script "./arch-pkg-setup.sh" "package installer"
     log_success "Pacman and AUR apps installed"
     
-    # Step 2: Dotfiles setup
-    run_script "./dotfiles-stow-setup.sh" "dotfiles configuration"
-    log_success "Dotfiles configured"
-    
-    # Step 3: flatpak packages (flatpaks)
+    # Step 2: flatpak packages (flatpaks)
     run_script "./flatpak-pkg-setup.sh" "flatpak package installer"
     log_success "Flatpak apps installed"
+    
+    # Step 3: Dotfiles setup
+    run_script "./dotfiles-stow-setup.sh" "dotfiles configuration"
+    log_success "Dotfiles configured"
     
     # Step 4: Shell setup
     run_script "./zsh-shell-setup.sh" "zsh shell setup"
