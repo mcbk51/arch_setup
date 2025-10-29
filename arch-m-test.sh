@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Arch Linux Minimal Installation Script (30GB VM layout)
+# Arch Linux Minimal Installation Script
 # Run this script from the Arch ISO
 
 set -e
@@ -29,7 +29,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-print_info "=== Arch Linux Minimal Installation Script (30GB VM Layout) ==="
+print_info "=== Arch Linux Minimal Installation Script ==="
 echo
 
 # Set NTP
@@ -52,7 +52,8 @@ if [ ! -b "$DRIVE" ]; then
 fi
 
 print_warn "WARNING: All data on $DRIVE will be destroyed!"
-read -rp "Continue? (yes/no): " CONFIRM
+read -rp "Continue? (yes/no) [yes]: " CONFIRM
+CONFIRM=${CONFIRM:-yes}
 if [ "$CONFIRM" != "yes" ]; then
     print_error "Installation aborted."
     exit 1
@@ -289,4 +290,3 @@ do
         *) echo "Invalid option";;
     esac
 done
-
