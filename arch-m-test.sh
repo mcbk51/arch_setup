@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Arch Linux Minimal Installation Script (Test VM Edition - ~30GB disk)
+# Arch Linux Minimal Installation Script (30GB VM layout)
 # Run this script from the Arch ISO
 
 set -e
@@ -29,7 +29,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-print_info "=== Arch Linux Minimal Installation Script (30GB VM) ==="
+print_info "=== Arch Linux Minimal Installation Script (30GB VM Layout) ==="
 echo
 
 # Set NTP
@@ -58,7 +58,7 @@ if [ "$CONFIRM" != "yes" ]; then
     exit 1
 fi
 
-# Partition the drive (adjusted for 30GB)
+# Partition the drive (1G EFI / 10G root / 2G swap / rest home)
 print_info "Partitioning $DRIVE..."
 
 # Determine partition naming scheme
@@ -74,13 +74,13 @@ else
     PART4="${DRIVE}4"
 fi
 
-# Create partitions using parted (fits in 30GB)
+# Create partitions using parted (fits within ~30GB)
 parted -s "$DRIVE" mklabel gpt
-parted -s "$DRIVE" mkpart primary fat32 1MiB 513MiB
+parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
 parted -s "$DRIVE" set 1 esp on
-parted -s "$DRIVE" mkpart primary btrfs 513MiB 20.5GiB
-parted -s "$DRIVE" mkpart primary linux-swap 20.5GiB 22.5GiB
-parted -s "$DRIVE" mkpart primary btrfs 22.5GiB 100%
+parted -s "$DRIVE" mkpart primary btrfs 1GiB 11GiB
+parted -s "$DRIVE" mkpart primary linux-swap 11GiB 13GiB
+parted -s "$DRIVE" mkpart primary btrfs 13GiB 100%
 
 print_info "Partitions created:"
 lsblk "$DRIVE"
