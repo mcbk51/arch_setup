@@ -52,7 +52,8 @@ if [ ! -b "$DRIVE" ]; then
 fi
 
 print_warn "WARNING: All data on $DRIVE will be destroyed!"
-read -rp "Continue? (yes/no): " CONFIRM
+read -rp "Continue? (yes/no) [yes]: " CONFIRM
+CONFIRM=${CONFIRM:-yes}
 if [ "$CONFIRM" != "yes" ]; then
     print_error "Installation aborted."
     exit 1
