@@ -1,8 +1,6 @@
 #!/bin/bash
-
 # Arch Linux Minimal Installation Script
 # Run this script from the Arch ISO
-
 set -e
 
 # Colors for output
@@ -54,12 +52,13 @@ fi
 print_warn "WARNING: All data on $DRIVE will be destroyed!"
 read -rp "Continue? (yes/no) [yes]: " CONFIRM
 CONFIRM=${CONFIRM:-yes}
-if [ "$CONFIRM" != "yes" ]; then
+
+if [ "$CONFIRM" == "no" ]; then
     print_error "Installation aborted."
     exit 1
 fi
 
-# Partition the drive (1G EFI / 10G root / 2G swap / rest home)
+# Partition the drive
 print_info "Partitioning $DRIVE..."
 
 # Determine partition naming scheme
@@ -74,7 +73,6 @@ else
     PART3="${DRIVE}3"
     PART4="${DRIVE}4"
 fi
-
 # Create partitions using parted (fits within ~30GB)
 parted -s "$DRIVE" mklabel gpt
 parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
@@ -122,7 +120,6 @@ genfstab -U /mnt >> /mnt/etc/fstab
 print_info "Creating chroot configuration script..."
 cat > /mnt/root/arch_chroot_setup.sh << 'CHROOT_EOF'
 #!/bin/bash
-
 set -e
 
 GREEN='\033[0;32m'
@@ -240,11 +237,9 @@ options root=UUID=$ROOT_UUID rw
 LTS_EOF
 
 print_info "Bootloader configured with entries for all kernels"
-
 print_info "=== Configuration Complete ==="
 echo
 print_info "System is ready!"
-
 CHROOT_EOF
 
 chmod +x /mnt/root/arch_chroot_setup.sh
@@ -270,8 +265,9 @@ do
             arch-chroot /mnt /root/arch_chroot_setup.sh
             print_info "Configuration complete!"
             echo
-            read -rp "Unmount and reboot now? (yes/no): " REBOOT
-            if [ "$REBOOT" == "yes" ]; then
+            read -rp "Unmount and reboot now? (yes/no) [yes]: " REBOOT
+            REBOOT=${REBOOT:-yes}
+            if [ "$REBOOT" != "no" ]; then
                 umount -R /mnt
                 reboot
             else
