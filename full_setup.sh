@@ -252,14 +252,21 @@ print_info "Bootloader configured with entries for all kernels"
 
 #Installing HyDE Hyprland
 print_info "Setting up HyDE for user $USERNAME..."
-su - "$USERNAME" -c "git clone --depth 1 https://github.com/HyDE-Project/HyDE ~/HyDE"
-su - "$USERNAME" -c "cd ~/HyDE/Scripts && ./install.sh"
-print_info "=== HyDE Installation Completed==="
+# Ensure ownership before switching user
+chown -R "$USERNAME:$USERNAME" /home/"$USERNAME"
+
+if su - "$USERNAME" -c "git clone --depth 1 https://github.com/HyDE-Project/HyDE ~/HyDE && cd ~/HyDE/Scripts && ./install.sh"; then
+    print_info "=== HyDE Installation Completed ==="
+else
+    print_warn "HyDE installation encountered issues, check logs"
+fi
 
 #Installing personal apps and dotfiles
-cd /home/$USERNAME
-su - "$USERNAME" -c "git clone https://github.com/mcbk51/arch_setup.git ~/arch_setup"
-su - "$USERNAME" -c "cd ~/arch_setup && ./setup_run.sh"
+if su - "$USERNAME" -c "git clone https://github.com/mcbk51/arch_setup.git ~/arch_setup && cd ~/arch_setup && ./setup_run.sh"; then
+    print_info "=== Personal setup completed ==="
+else
+    print_warn "Personal setup encountered issues, check logs"
+fi
 print_info "=== Configuration Complete ==="
 echo
 print_info "System is ready!"
