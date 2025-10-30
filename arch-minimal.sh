@@ -131,41 +131,124 @@ print_info() {
 print_warn() {
     echo -e "${YELLOW}[WARN]${NC} $1"
 }
-
 # Timezone selection
 print_info "=== Timezone Configuration ==="
-echo "Examples: America/New_York, Europe/London, Asia/Tokyo"
-ls /usr/share/zoneinfo/
-read -rp "Enter region (e.g., America): " REGION
-ls "/usr/share/zoneinfo/$REGION/"
-read -rp "Enter city (e.g., New_York): " CITY
-ln -sf "/usr/share/zoneinfo/$REGION/$CITY" /etc/localtime
-hwclock --systohc
-print_info "Timezone set to $REGION/$CITY"
-echo
 
+# Try to detect timezone based on IP geolocation
+print_info "Attempting to detect your location..."
+DETECTED_TZ=""
+if command -v curl >/dev/null 2>&1; then
+    DETECTED_TZ=$(curl -s --max-time 5 "http://ip-api.com/line/?fields=timezone" 2>/dev/null || echo "")
+fi
+
+if [ -n "$DETECTED_TZ" ] && [ -f "/usr/share/zoneinfo/$DETECTED_TZ" ]; then
+    print_info "Detected timezone: $DETECTED_TZ"
+    REGION=$(echo "$DETECTED_TZ" | cut -d'/' -f1)
+    CITY=$(echo "$DETECTED_TZ" | cut -d'/' -f2-)
+else
+    print_info "Could not detect location automatically"
+    REGION=""
+    CITY=""
+fi
+
+# Show common timezones with detected one first
+echo "Select timezone:"
+COUNTER=1
+declare -a TZ_OPTIONS
+
+if [ -n "$DETECTED_TZ" ]; then
+    echo "$COUNTER) $DETECTED_TZ (detected)"
+    TZ_OPTIONS[$COUNTER]="$DETECTED_TZ"
+    ((COUNTER++))
+fi
+
+# Common timezones
+COMMON_TZ=("America/New_York" "America/Los_Angeles" "America/Chicago" "Europe/London" "Europe/Paris" "Asia/Tokyo" "Australia/Sydney")
+
+for tz in "${COMMON_TZ[@]}"; do
+    if [ "$tz" != "$DETECTED_TZ" ] && [ $COUNTER -le 5 ]; then
+        echo "$COUNTER) $tz"
+        TZ_OPTIONS[$COUNTER]="$tz"
+        ((COUNTER++))
+    fi
+done
+
+echo "6) Manual entry"
+
+read -rp "Enter choice [1]: " TZ_CHOICE
+TZ_CHOICE=${TZ_CHOICE:-1}
+
+if [ "$TZ_CHOICE" == "6" ]; then
+    echo "Examples: America/New_York, Europe/London, Asia/Tokyo"
+    ls /usr/share/zoneinfo/
+    read -rp "Enter region (e.g., America): " REGION
+    ls "/usr/share/zoneinfo/$REGION/"
+    read -rp "Enter city (e.g., New_York): " CITY
+    SELECTED_TZ="$REGION/$CITY"
+elif [ -n "${TZ_OPTIONS[$TZ_CHOICE]}" ]; then
+    SELECTED_TZ="${TZ_OPTIONS[$TZ_CHOICE]}"
+    REGION=$(echo "$SELECTED_TZ" | cut -d'/' -f1)
+    CITY=$(echo "$SELECTED_TZ" | cut -d'/' -f2-)
+else
+    print_warn "Invalid choice, using America/New_York"
+    SELECTED_TZ="America/New_York"
+    REGION="America"
+    CITY="New_York"
+fi
+
+ln -sf "/usr/share/zoneinfo/$SELECTED_TZ" /etc/localtime
+hwclock --systohc
+print_info "Timezone set to $SELECTED_TZ"
+echo
 # Locale selection
 print_info "=== Locale Configuration ==="
-echo "Common locales:"
-echo "  en_US.UTF-8"
-echo "  en_GB.UTF-8"
-echo "  de_DE.UTF-8"
-echo "  es_ES.UTF-8"
-echo "  fr_FR.UTF-8"
-read -rp "Enter locale (e.g., en_US.UTF-8): " LOCALE
+echo "Select locale:"
+echo "1) en_US.UTF-8 (default)"
+echo "2) en_GB.UTF-8"
+echo "3) de_DE.UTF-8"
+echo "4) es_ES.UTF-8"
+echo "5) fr_FR.UTF-8"
+read -rp "Enter choice [1]: " LOCALE_CHOICE
+LOCALE_CHOICE=${LOCALE_CHOICE:-1}
+
+case $LOCALE_CHOICE in
+    1) LOCALE="en_US.UTF-8" ;;
+    2) LOCALE="en_GB.UTF-8" ;;
+    3) LOCALE="de_DE.UTF-8" ;;
+    4) LOCALE="es_ES.UTF-8" ;;
+    5) LOCALE="fr_FR.UTF-8" ;;
+    *) LOCALE="en_US.UTF-8" ;;
+esac
+
 echo "$LOCALE UTF-8" >> /etc/locale.gen
 locale-gen
 echo "LANG=$LOCALE" > /etc/locale.conf
 print_info "Locale set to $LOCALE"
 echo
-
 # Keyboard layout
 print_info "=== Keyboard Layout Configuration ==="
-echo "Common layouts: us, uk, de, fr, es"
-read -rp "Enter keyboard layout (e.g., us): " KEYMAP
+echo "Select keyboard layout:"
+echo "1) us (default)"
+echo "2) uk"
+echo "3) de"
+echo "4) es"
+echo "5) fr"
+read -rp "Enter choice [1]: " KEYMAP_CHOICE
+KEYMAP_CHOICE=${KEYMAP_CHOICE:-1}
+
+case $KEYMAP_CHOICE in
+    1) KEYMAP="us" ;;
+    2) KEYMAP="uk" ;;
+    3) KEYMAP="de" ;;
+    4) KEYMAP="es" ;;
+    5) KEYMAP="fr" ;;
+    *) KEYMAP="us" ;;
+esac
+
 echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
 print_info "Keyboard layout set to $KEYMAP"
 echo
+
 
 # Hostname
 read -rp "Enter hostname for this machine: " HOSTNAME
