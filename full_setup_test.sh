@@ -81,14 +81,21 @@ else
     PART3="${DRIVE}3"
     PART4="${DRIVE}4"
 fi
-
-# Create partitions using parted
+# Create partitions using parted (fits within ~30GB)
 parted -s "$DRIVE" mklabel gpt
 parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
 parted -s "$DRIVE" set 1 esp on
-parted -s "$DRIVE" mkpart primary btrfs 1GiB 101GiB
-parted -s "$DRIVE" mkpart primary linux-swap 101GiB 113GiB
-parted -s "$DRIVE" mkpart primary btrfs 113GiB 100%
+parted -s "$DRIVE" mkpart primary btrfs 1GiB 11GiB
+parted -s "$DRIVE" mkpart primary linux-swap 11GiB 13GiB
+parted -s "$DRIVE" mkpart primary btrfs 13GiB 100%
+
+## Create partitions using parted
+#parted -s "$DRIVE" mklabel gpt
+#parted -s "$DRIVE" mkpart primary fat32 1MiB 1GiB
+#parted -s "$DRIVE" set 1 esp on
+#parted -s "$DRIVE" mkpart primary btrfs 1GiB 101GiB
+#parted -s "$DRIVE" mkpart primary linux-swap 101GiB 113GiB
+#parted -s "$DRIVE" mkpart primary btrfs 113GiB 100%
 
 print_info "Partitions created:"
 lsblk "$DRIVE"
