@@ -262,15 +262,46 @@ HOSTS_EOF
 echo "127.0.1.1   $HOSTNAME.localdomain $HOSTNAME" >> /etc/hosts
 
 # Root password
-print_info "Set root password:"
-passwd
+ROOT_PASS_SET=false
+while [ "$ROOT_PASS_SET" = false ]; do
+  print_info "Set root password:"
+  if passwd; then
+    ROOT_PASS_SET=true
+    print_info "Root password set successfully"
+  else
+    print_warn "Failed to set root password (passwords may not match or are invalid)"
+    read -rp "Try again? (yes/no) [yes]: " TRY_AGAIN
+    TRY_AGAIN=${TRY_AGAIN: -yes}
+    if [ "$TRY_AGAIN" == "no" ]; then
+      print_error "Root password is required. Exiting..."
+      exit 1
+    fi
+      
+  fi
+  
+done
 
 # Create user
 print_info "=== User Creation ==="
 read -rp "Enter username: " USERNAME
 useradd -m -G wheel,audio,video,storage -s /bin/bash "$USERNAME"
-print_info "Set password for $USERNAME:"
-passwd "$USERNAME"
+
+USER_PASS_SET=false
+while [ "$USER_PASS_SET" = false ]; do
+    print_info "Set password for $USERNAME:"
+    if passwd "$USERNAME"; then
+        USER_PASS_SET=true
+        print_info "User password set successfully"
+    else
+        print_warn "Failed to set user password (passwords may not match or are invalid)"
+        read -rp "Try again? (yes/no) [yes]: " TRY_AGAIN
+        TRY_AGAIN=${TRY_AGAIN:-yes}
+        if [ "$TRY_AGAIN" == "no" ]; then
+            print_error "User password is required. Exiting..."
+            exit 1
+        fi
+    fi
+done
 
 # Enable sudo for wheel group
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
