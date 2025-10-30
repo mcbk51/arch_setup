@@ -308,24 +308,25 @@ sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 # Clone git repository to user's home
 print_info "===Install Repo Setup ==="
 read -rp "Would you like to clone install repo to user's home? (yes/no) [no]: " CLONE_REPO 
-CLONE_REPO=${CLONE_REPO;-no}
+CLONE_REPO=${CLONE_REPO:-no}
 REPO_URL="https://github.com/mcbk51/arch_setup.git"
 
 if [ "$CLONE_REPO" == "yes" ]; then 
   read -rp "Enter directory name (leave empty for default): " DIR_NAME
   
   print_info "Cloning repository..."
-  if [ -z "$DIR_NAME"]; then
-    su - "$USERNAME" -c "git clone 'REPO_URL'"
+  if [ -z "$DIR_NAME" ]; then
+    su - "$USERNAME" -c "git clone '$REPO_URL'"
   else
-    su - "$USERNAME" -c "git clone 'REPO_URL' 'DIR_NAME'"
+    su - "$USERNAME" -c "git clone '$REPO_URL' '$DIR_NAME'"
   fi
 
-  if [ $? -q 0 ]; then
+  if [ $? -eq 0 ]; then
     print_info "Repository cloned successfully to /home/$USERNAME/"
   else
     print_warn "Failed to clone repository"
   fi 
+fi
 
 # Enable NetworkManager
 print_info "Enabling NetworkManager..."
