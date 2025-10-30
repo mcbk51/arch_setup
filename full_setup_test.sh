@@ -66,7 +66,8 @@ DRIVE_SIZE=$(lsblk -b -d -n -o SIZE "$DRIVE")
 MIN_SIZE=$((30 * 1024 * 1024 * 1024))  # 30GB in bytes
 #MIN_SIZE=$((125 * 1024 * 1024 * 1024))  # 125GB in bytes
 if [ "$DRIVE_SIZE" -lt "$MIN_SIZE" ]; then
-    print_error "Drive too small! Need at least 125GB"
+    print_error "Drive too small! Need at least 30GB"
+    #print_error "Drive too small! Need at least 125GB"
     exit 1
 fi
 
