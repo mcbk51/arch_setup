@@ -108,7 +108,7 @@ sleep 2
 
 # Install base system
 print_info "Installing base system (this may take a while)..."
-pacstrap /mnt base base-devel linux linux-headers linux-firmware linux-zen linux-zen-headers linux-lts linux-lts-headers git curl neovim networkmanager pipewire sudo
+pacstrap /mnt base base-devel linux linux-headers linux-firmware linux-zen linux-zen-headers linux-lts linux-lts-headers git curl neovim networkmanager sudo
 
 # Generate fstab
 print_info "Generating fstab..."
