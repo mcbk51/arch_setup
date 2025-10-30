@@ -95,18 +95,36 @@ echo ""
 print_warning "Automatically proceeding in 10 seconds..."
 if countdown_prompt "Do you want to switch your default shell to zsh? (Y/n) [10s]: " "y" 10; then
     print_info "Switching shell to zsh..."
-    if chsh -s /bin/zsh; then
-        echo ""
-        print_success "Shell changed to zsh"
-        echo ""
-        print_info "Please log out and log back in for changes to take effect"
-    else
-        print_error "Failed to change shell"
-        exit 1
-    fi
+
+    MAX_ATTEMPTS=3
+    attempt=1
+
+    while (( attempt <= MAX_ATTEMPTS )); do
+        set +e 
+        chsh -s /bin/zsh
+        status=$?
+        set -e  
+
+        if [[ $status -eq 0 ]]; then
+            echo ""
+            print_success "Shell changed to zsh"
+            echo ""
+            print_info "Please log out and log back in for changes to take effect"
+            break
+        else
+            print_warning "Failed to change shell (attempt $attempt of $MAX_ATTEMPTS)"
+            (( attempt++ ))
+            if (( attempt > MAX_ATTEMPTS )); then
+                print_error "Maximum attempts reached. Shell not changed."
+                exit 1
+            fi
+            echo "Try again..."
+        fi
+    done
+
+    echo ""
 else
     print_info "Shell change cancelled"
     exit 0
 fi
 
-echo ""
