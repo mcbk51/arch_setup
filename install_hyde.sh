@@ -22,22 +22,6 @@ print_error() {
 print_info "This script requires sudo privileges for package installation"
 sudo -v
 
-# Keep sudo alive in background (updates timestamp every 60 seconds)
-keep_sudo_alive() {
-while true; do
-        sudo -n true
-        sleep 60
-    done 2>/dev/null
-}
-keep_sudo_alive &
-SUDO_PID=$!
-
-# Cleanup function
-cleanup() {
-    kill $SUDO_PID 2>/dev/null || true
-}
-trap cleanup EXIT
-
 # Installing HyDE Hyprland
 print_info "Setting up HyDE"
 
