@@ -81,6 +81,15 @@ run_script() {
 
 # Main setup process
 main() {
+    # Request sudo privileges upfront
+    log_info "This script requires sudo privileges for package installation"
+    sudo -v
+    
+    # Keep sudo alive in background (updates timestamp every 60 seconds)
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+    
+    log "Starting full Arch Linux system setup"
+    # ... rest of your code
     log "Starting full Arch Linux system setup"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
