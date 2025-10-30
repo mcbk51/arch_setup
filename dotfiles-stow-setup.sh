@@ -67,12 +67,14 @@ BACKUP_DIR="$HOME/.dotfiles_backups"
 declare -a config_dirs=(
     "$HOME/.config/fastfetch"
     "$HOME/.config/ghostty"
-    "$HOME/.config/nvim"
+    "$HOME/.config/hyde"
     "$HOME/.config/hypr"
+    "$HOME/.config/nvim"
+    "$HOME/.config/starship"
     "$HOME/.config/tmux"
+    "$HOME/.config/waybar"
     "$HOME/.config/yazi"
-    "$HOME/.zshrc"
-    "$HOME/.tmux.conf"
+    "$HOME/.config/zsh"
 )
 
 # Function to back up existing configs
