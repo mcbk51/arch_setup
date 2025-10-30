@@ -108,7 +108,7 @@ sleep 2
 
 # Install base system
 print_info "Installing base system (this may take a while)..."
-pacstrap /mnt base base-devel linux linux-headers linux-firmware linux-zen linux-zen-headers linux-lts linux-lts-headers git curl neovim networkmanager pipewire sudo
+pacstrap /mnt base base-devel linux linux-headers linux-firmware linux-zen linux-zen-headers linux-lts linux-lts-headers intel-ucode amd-ucode git curl neovim networkmanager pipewire sudo 
 
 # Generate fstab
 print_info "Generating fstab..."
@@ -217,6 +217,8 @@ cat > /boot/loader/entries/arch.conf << ARCH_EOF
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
+initrd  /intel-ucode.img
+initrd  /amd-ucode.img
 options root=UUID=$ROOT_UUID rw
 ARCH_EOF
 
@@ -224,12 +226,16 @@ cat > /boot/loader/entries/arch-zen.conf << ZEN_EOF
 title   Arch Linux (Zen)
 linux   /vmlinuz-linux-zen
 initrd  /initramfs-linux-zen.img
+initrd  /intel-ucode.img
+initrd  /amd-ucode.img
 options root=UUID=$ROOT_UUID rw
 ZEN_EOF
 
 cat > /boot/loader/entries/arch-lts.conf << LTS_EOF
 title   Arch Linux (LTS)
 linux   /vmlinuz-linux-lts
+initrd  /intel-ucode.img
+initrd  /amd-ucode.img
 initrd  /initramfs-linux-lts.img
 options root=UUID=$ROOT_UUID rw
 LTS_EOF
@@ -238,16 +244,14 @@ print_info "Bootloader configured with entries for all kernels"
 
 #Installing HyDE Hyprland
 print_info "Setting up HyDE for user $USERNAME..."
-sudo -u "$USERNAME" git clone --depth 1 https://github.com/HyDE-Project/HyDE /home/$USERNAME/HyDE
-cd /home/$USERNAME/HyDE/Scripts
-sudo -u "$USERNAME" ./install.sh
+su - "$USERNAME" -c "git clone --depth 1 https://github.com/HyDE-Project/HyDE ~/HyDE"
+su - "$USERNAME" -c "cd ~/HyDE/Scripts && ./install.sh"
 print_info "=== HyDE Installation Completed==="
 
 #Installing personal apps and dotfiles
 cd /home/$USERNAME
-sudo -u "$USERNAME" git clone https://github.com/mcbk51/arch_setup.git /home/"$USERNAME"/arch_setup
-cd /home/"$USERNAME"/arch_setup
-sudo -u "$USERNAME" ./setup_run.sh
+su - "$USERNAME" -c "git clone https://github.com/mcbk51/arch_setup.git ~/arch_setup"
+su - "$USERNAME" -c "cd ~/arch_setup && ./setup_run.sh"
 print_info "=== Configuration Complete ==="
 echo
 print_info "System is ready!"
