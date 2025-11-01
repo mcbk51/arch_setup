@@ -110,6 +110,19 @@ sleep 2
 print_info "Installing base system (this may take a while)..."
 pacstrap /mnt base base-devel linux linux-headers linux-firmware linux-zen linux-zen-headers linux-lts linux-lts-headers git curl neovim networkmanager sudo
 
+# Enable multilib repository
+print_info "Enabling multilib repository..."
+if ! grep -q "^\[multilib\]" /mnt/etc/pacman.conf; then
+    cat << 'EOF' >> /mnt/etc/pacman.conf
+
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+EOF
+fi
+
+# Update package database inside chroot
+arch-chroot /mnt pacman -Sy --noconfirm
+
 # Generate fstab
 print_info "Generating fstab..."
 genfstab -U /mnt >> /mnt/etc/fstab
