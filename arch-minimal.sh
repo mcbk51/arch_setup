@@ -21,6 +21,13 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Check iso environment 
+if [ ! -f /usr/bin/pacstrap ]; then
+  echo "Please run the script on Arch Linux ISO env"
+  exit 1
+fi
+
+
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then 
     print_error "Please run as root"
