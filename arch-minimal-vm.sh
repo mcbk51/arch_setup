@@ -112,9 +112,17 @@ sleep 2
 print_info "Installing base system (this may take a while)..."
 pacstrap /mnt base base-devel linux linux-headers linux-firmware linux-zen linux-zen-headers linux-lts linux-lts-headers git curl neovim networkmanager  sudo
 
+
 # Enable multilib repository
 print_info "Enabling multilib repository..."
-if ! grep -q "^\[multilib\]" /mnt/etc/pacman.conf; then
+# Check if multilib exists (commented or uncommented)
+if grep -q "^\[multilib\]" /mnt/etc/pacman.conf; then
+    print_info "Multilib already enabled"
+elif grep -q "^#\[multilib\]" /mnt/etc/pacman.conf; then
+    print_info "Uncommenting existing multilib section..."
+    sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /mnt/etc/pacman.conf
+else
+    print_info "Adding multilib section..."
     cat << 'EOF' >> /mnt/etc/pacman.conf
 
 [multilib]
